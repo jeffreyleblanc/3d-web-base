@@ -4,10 +4,28 @@
         <meta charset="utf-8">
         <title>My first three.js app</title>
         <style>
-            body { margin: 0; }
+            body {
+                margin: 0;
+                position: relative;
+            }
+
+            .top {
+                z-index: 10;
+                color:white;
+                position:fixed;
+            }
+
+            .small {
+                height: 2rem;
+                width: 2rem;
+            }
         </style>
     </head>
     <body>
+        <div class="top">
+            <span>I'm on top</span>
+            <img class="small" src="public/sample.png"/>
+        </div>
         <script type="module" src="/main.js"></script>
     </body>
 </html>

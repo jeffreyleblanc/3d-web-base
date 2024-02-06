@@ -1,2 +1,6 @@
 # Ignore all node_modules directories at any depth
 **/node_modules/
+
+# Ignore all public directory contents for now
+**/public/
+
