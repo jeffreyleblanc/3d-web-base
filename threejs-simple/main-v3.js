@@ -19,10 +19,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
     // Docs have good notes on this
-    const renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        canvas: null
-    });
+    const renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
 
