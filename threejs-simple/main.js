@@ -1,21 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-
-
-function resizeRendererToDisplaySize(renderer){
-    // console.log("check")
-    // const canvas = renderer.domElement;
-    // const width = canvas.clientWidth;
-    // const height = canvas.clientHeight;
-    // console.log("?",canvas.width,width)
-    // const needResize = canvas.width !== width || canvas.height !== height;
-    // if(needResize){
-    //     console.log("resize!")
-    //     renderer.setSize(width, height, false);
-    // }
-    // return needResize;
-}
+import {VRButton} from 'three/addons/webxr/VRButton.js';
 
 class BaseScene {
 
@@ -30,6 +16,10 @@ class BaseScene {
             canvas: canvas_el
         });
         this.renderer.setSize(canvas_w,canvas_h,false);
+
+        // Enable for VR
+        this.renderer.xr.enabled = true;
+        document.body.appendChild(VRButton.createButton(this.renderer));
 
         // Attach a resize observer
         this.resizeObserver = new ResizeObserver((event)=>{
@@ -168,19 +158,12 @@ function main(){
     //-- Loop -----------------------------------------//
 
         function render(time_ms=0){
-
-            if (resizeRendererToDisplaySize(M.renderer)) {
-                const canvas = M.renderer.domElement;
-                camera.aspect = canvas.clientWidth / canvas.clientHeight;
-                camera.updateProjectionMatrix();
-            }
-
             // Rotate main cube
             cube.rotation.x = time_ms/1000;
             cube.rotation.y = time_ms/5000;
             M.on_update();
-            requestAnimationFrame(render);
         }
-        render();
+        // Let renderer run animation to support AR/VR
+        M.renderer.setAnimationLoop(render);
 }
 main();
