@@ -2,22 +2,57 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+
+function resizeRendererToDisplaySize(renderer){
+    // console.log("check")
+    // const canvas = renderer.domElement;
+    // const width = canvas.clientWidth;
+    // const height = canvas.clientHeight;
+    // console.log("?",canvas.width,width)
+    // const needResize = canvas.width !== width || canvas.height !== height;
+    // if(needResize){
+    //     console.log("resize!")
+    //     renderer.setSize(width, height, false);
+    // }
+    // return needResize;
+}
+
 class BaseScene {
 
     constructor(canvas_el){
+        // Initial sizing
+        let canvas_w = canvas_el.clientWidth;
+        let canvas_h = canvas_el.clientHeight;
+
         // Setup our renderer
         this.renderer = new THREE.WebGLRenderer({
             antialias: true,
             canvas: canvas_el
         });
-        this.renderer.setSize(window.innerWidth,window.innerHeight);
+        this.renderer.setSize(canvas_w,canvas_h,false);
+
+        // Attach a resize observer
+        this.resizeObserver = new ResizeObserver((event)=>{
+            const el = event[0].target;
+            const cbbox = el.getBoundingClientRect();
+            const canvas_w = cbbox.width;
+            const canvas_h = cbbox.height;
+
+            // Update the size
+            this.renderer.setSize(canvas_w,canvas_h,false);
+            // Update the camera
+            this.camera.aspect = canvas_w/canvas_h;
+            this.camera.updateProjectionMatrix();
+
+        });
+        this.resizeObserver.observe(canvas_el);
 
         // Make the root scene node
         this.scene = new THREE.Scene();
 
         // Setup the camera
         const fov = 75;
-        const aspect = window.innerWidth / window.innerHeight;
+        const aspect = canvas_w/canvas_h;
         const near = 0.1;
         const far = 1000;
         this.camera = new THREE.PerspectiveCamera(fov,aspect,near,far);
@@ -76,22 +111,12 @@ function main(){
         const dl_intensity1 = 0.5;
         const directional_light1 = new THREE.DirectionalLight(dl_color1,dl_intensity1);
         directional_light1.position.set(15,15,0);
+        // the way this work is: directional_light1.target.set( an_object);
         M.add_light("directional1",directional_light1);
 
         // Add a directional light helper
         const dl_helper1 = new THREE.DirectionalLightHelper(directional_light1,1);
         M.add_helper("directional_light1",dl_helper1);
-
-        // Add a directional light
-        const dl_color2 = 0x8888FF;
-        const dl_intensity2 = 0.5;
-        const directional_light2 = new THREE.DirectionalLight(dl_color2,dl_intensity2);
-        directional_light2.position.set(-15,10,0);
-        M.add_light("directional2",directional_light2);
-
-        // Add a directional light helper
-        const dl_helper2 = new THREE.DirectionalLightHelper(directional_light2,1);
-        M.add_helper("directional_light2",dl_helper2);
 
     //-- Helpers -----------------------------------------//
 
@@ -142,15 +167,20 @@ function main(){
 
     //-- Loop -----------------------------------------//
 
-        function animate() {
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
+        function render(time_ms=0){
 
-            requestAnimationFrame( animate );
+            if (resizeRendererToDisplaySize(M.renderer)) {
+                const canvas = M.renderer.domElement;
+                camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                camera.updateProjectionMatrix();
+            }
 
+            // Rotate main cube
+            cube.rotation.x = time_ms/1000;
+            cube.rotation.y = time_ms/5000;
             M.on_update();
-
+            requestAnimationFrame(render);
         }
-        animate();
+        render();
 }
 main();
